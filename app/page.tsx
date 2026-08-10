@@ -154,7 +154,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-stone-800 bg-stone-950">
-        <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="max-w-7xl mx-auto px-6 py-14 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-10">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
@@ -168,23 +168,23 @@ export default function Home() {
             <p className="text-stone-500 text-sm leading-relaxed">1998'den bu yana dünyanın en güzel el yapımı halılarını sunuyoruz. Özgünlük garantili.</p>
           </div>
           {[
-            { title: "Mağaza", links: ["Tüm Halılar", "İran", "Fas", "Modern", "Vintage", "Dış Mekan"] },
-            { title: "Yardım", links: ["Kargo Bilgisi", "İade", "Ölçü Rehberi", "Bakım Rehberi", "SSS"] },
-            { title: "Kurumsal", links: ["Hakkımızda", "Blog", "Basın", "Kariyer", "İletişim"] },
+            { title: "Mağaza", links: [{ label: "Tüm Halılar", href: "/shop" }, { label: "İran", href: "/shop?category=İran" }, { label: "Fas", href: "/shop?category=Fas" }, { label: "Modern", href: "/shop?category=Modern" }, { label: "Vintage", href: "/shop?category=Vintage" }, { label: "Dış Mekan", href: "/shop?category=Outdoor" }] },
+            { title: "Yardım", links: [{ label: "Kargo Bilgisi", href: "/contact" }, { label: "İade", href: "/contact" }, { label: "Ölçü Rehberi", href: "/contact" }, { label: "Bakım Rehberi", href: "/contact" }, { label: "SSS", href: "/contact" }] },
+            { title: "Kurumsal", links: [{ label: "Hakkımızda", href: "/about" }, { label: "Blog", href: "/about" }, { label: "Basın", href: "/contact" }, { label: "Kariyer", href: "/contact" }, { label: "İletişim", href: "/contact" }] },
           ].map((col) => (
             <div key={col.title}>
               <h4 className="text-white font-bold mb-4 text-sm">{col.title}</h4>
               <ul className="space-y-2.5">
                 {col.links.map((l) => (
-                  <li key={l}><Link href="/shop" className="text-stone-500 hover:text-amber-400 text-sm transition-colors">{l}</Link></li>
+                  <li key={l.label}><Link href={l.href} className="text-stone-500 hover:text-amber-400 text-sm transition-colors">{l.label}</Link></li>
                 ))}
               </ul>
             </div>
           ))}
         </div>
-        <div className="border-t border-stone-800 px-6 py-5 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-stone-600 text-xs">
+        <div className="border-t border-stone-800 px-6 py-5 max-w-7xl mx-auto flex flex-row flex-wrap items-center justify-between gap-2 text-stone-600 text-xs">
           <span>© 2025 Arabzada. Tüm hakları saklıdır.</span>
-          <div className="flex gap-5">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-5">
             {["Gizlilik Politikası", "Kullanım Koşulları", "Çerez Politikası"].map((l) => (
               <Link key={l} href="/" className="hover:text-stone-400 transition-colors">{l}</Link>
             ))}

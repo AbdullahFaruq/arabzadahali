@@ -9,8 +9,8 @@ const navLinks = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Mağaza", href: "/shop" },
   { label: "Koleksiyonlar", href: "/shop" },
-  { label: "Hakkımızda", href: "/" },
-  { label: "İletişim", href: "/" },
+  { label: "Hakkımızda", href: "/about" },
+  { label: "İletişim", href: "/contact" },
 ];
 
 export default function Navbar() {
@@ -174,7 +174,7 @@ export default function Navbar() {
                   )}
                 </div>
               ) : (
-                <Link href="/sign-in" className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 border border-stone-700 px-4 py-2 rounded-xl transition-all">
+                <Link href="/sign-in" className="flex items-center gap-1.5 text-[10px] sm:text-sm font-semibold text-stone-300 hover:text-white bg-stone-800 hover:bg-stone-700 border border-stone-700 px-2.5 sm:px-4 py-2 rounded-xl transition-all">
                   Giriş Yap
                 </Link>
               )
