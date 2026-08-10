@@ -12,6 +12,8 @@ interface StoreCtx {
   toasts: Toast[];
   products: Product[];
   slides: Slide[];
+  banner: string;
+  updateBanner: (text: string) => void;
   addToCart: (p: Product, size?: string) => void;
   removeFromCart: (id: number) => void;
   updateQty: (id: number, qty: number) => void;
@@ -38,6 +40,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [slides, setSlides] = useState<Slide[]>(initialSlides);
+  const [banner, setBanner] = useState("🎁 Free shipping on orders over $500 · Use code CARPET20 for 20% off");
 
   useEffect(() => {
     try {
@@ -49,6 +52,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (w) setWishlist(JSON.parse(w));
       if (p) setProducts(JSON.parse(p));
       if (s) setSlides(JSON.parse(s));
+      const b = localStorage.getItem("banner");
+      if (b) setBanner(b);
     } catch {}
   }, []);
 
@@ -56,6 +61,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => { localStorage.setItem("wishlist", JSON.stringify(wishlist)); }, [wishlist]);
   useEffect(() => { localStorage.setItem("products", JSON.stringify(products)); }, [products]);
   useEffect(() => { localStorage.setItem("slides", JSON.stringify(slides)); }, [slides]);
+  useEffect(() => { localStorage.setItem("banner", banner); }, [banner]);
 
   const showToast = useCallback((message: string, type: Toast["type"] = "success") => {
     const id = Date.now();
@@ -122,6 +128,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     showToast("Slide deleted", "info");
   }, [showToast]);
 
+  const updateBanner = useCallback((text: string) => { setBanner(text); showToast("Banner updated"); }, [showToast]);
   const reorderSlides = useCallback((s: Slide[]) => setSlides(s), []);
 
   const isWishlisted = useCallback((id: number) => wishlist.includes(id), [wishlist]);
@@ -129,7 +136,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const cartTotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
 
   return (
-    <Ctx.Provider value={{ cart, wishlist, toasts, products, slides, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, isWishlisted, cartCount, cartTotal, showToast, addProduct, updateProduct, deleteProduct, updateSlide, addSlide, deleteSlide, reorderSlides }}>
+    <Ctx.Provider value={{ cart, wishlist, toasts, products, slides, banner, updateBanner, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, isWishlisted, cartCount, cartTotal, showToast, addProduct, updateProduct, deleteProduct, updateSlide, addSlide, deleteSlide, reorderSlides }}>
       {children}
       <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
         {toasts.map((t) => (

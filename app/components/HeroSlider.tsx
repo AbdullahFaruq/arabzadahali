@@ -41,7 +41,7 @@ export default function HeroSlider() {
             <span className={`animate-fade-up inline-block text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full bg-gradient-to-r ${s.accent} text-white mb-6 shadow-lg`}>
               {s.tag}
             </span>
-            <h1 className="animate-fade-up delay-100 text-5xl md:text-7xl font-black text-white leading-[1.05] mb-6 whitespace-pre-line">
+            <h1 className="animate-fade-up delay-100 text-4xl md:text-7xl font-black text-white leading-[1.05] mb-6 whitespace-pre-line">
               {s.title}
             </h1>
             <p className="animate-fade-up delay-200 text-lg text-stone-300 mb-10 max-w-lg leading-relaxed">{s.sub}</p>
@@ -63,13 +63,17 @@ export default function HeroSlider() {
         <span className="text-sm text-white/40">{String(slides.length).padStart(2, "0")}</span>
       </div>
 
-      <button onClick={prev} className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/20 hover:scale-110 transition-all duration-200 text-xl">‹</button>
-      <button onClick={next} className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/20 hover:scale-110 transition-all duration-200 text-xl">›</button>
+      {/* Arrows — side on desktop, hidden on mobile */}
+      <button onClick={prev} className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white items-center justify-center hover:bg-white/20 hover:scale-110 transition-all duration-200 text-xl">‹</button>
+      <button onClick={next} className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 text-white items-center justify-center hover:bg-white/20 hover:scale-110 transition-all duration-200 text-xl">›</button>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+      {/* Bottom controls — dots + arrows on mobile */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+        <button onClick={prev} className="md:hidden w-9 h-9 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all text-lg">‹</button>
         {slides.map((_, i) => (
           <button key={i} onClick={() => setCur(i)} className={`rounded-full transition-all duration-300 ${i === cur ? "w-8 h-2 bg-amber-500" : "w-2 h-2 bg-white/30 hover:bg-white/60"}`} />
         ))}
+        <button onClick={next} className="md:hidden w-9 h-9 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all text-lg">›</button>
       </div>
 
       {!paused && (

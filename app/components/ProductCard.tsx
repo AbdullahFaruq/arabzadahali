@@ -3,6 +3,15 @@ import Link from "next/link";
 import { Product } from "../types";
 import { useStore } from "../context/StoreContext";
 
+const badgeLabels: Record<string, string> = {
+  "Best Seller": "Çok Satan",
+  "New": "Yeni",
+  "Premium": "Premium",
+  "Rare": "Nadir",
+  "Eco": "Eko",
+  "Trending": "Trend",
+};
+
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart, toggleWishlist, isWishlisted } = useStore();
   const wishlisted = isWishlisted(product.id);
@@ -10,24 +19,24 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="group bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden hover:border-amber-500/40 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300">
-      {/* Image */}
+      {/* Görsel */}
       <div className="relative overflow-hidden aspect-[4/3] bg-stone-800">
         <Link href={`/shop/${product.id}`}>
           <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         </Link>
 
-        {/* Badges */}
+        {/* Rozetler */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           {product.badge && (
             <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg ${product.badge === "Best Seller" ? "bg-amber-500 text-white" : product.badge === "New" ? "bg-emerald-500 text-white" : product.badge === "Premium" ? "bg-violet-500 text-white" : product.badge === "Rare" ? "bg-rose-500 text-white" : product.badge === "Eco" ? "bg-teal-500 text-white" : "bg-blue-500 text-white"}`}>
-              {product.badge}
+              {badgeLabels[product.badge] ?? product.badge}
             </span>
           )}
-          {discount && <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-red-500 text-white">-{discount}%</span>}
-          {!product.inStock && <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-stone-700 text-stone-300">Sold Out</span>}
+          {discount && <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-red-500 text-white">-%{discount}</span>}
+          {!product.inStock && <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-stone-700 text-stone-300">Tükendi</span>}
         </div>
 
-        {/* Wishlist */}
+        {/* Favori */}
         <button
           onClick={() => toggleWishlist(product.id)}
           className={`absolute top-3 right-3 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${wishlisted ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30" : "bg-stone-900/80 backdrop-blur-sm text-stone-400 hover:text-rose-400 hover:bg-stone-800"}`}
@@ -37,20 +46,20 @@ export default function ProductCard({ product }: { product: Product }) {
           </svg>
         </button>
 
-        {/* Quick add — appears on hover */}
+        {/* Hızlı ekle */}
         {product.inStock && (
           <div className="absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
             <button
               onClick={() => addToCart(product)}
               className="w-full bg-amber-600 hover:bg-amber-500 text-white text-sm font-bold py-3 transition-colors"
             >
-              + Quick Add to Cart
+              + Sepete Ekle
             </button>
           </div>
         )}
       </div>
 
-      {/* Info */}
+      {/* Bilgi */}
       <div className="p-4">
         <div className="flex items-start justify-between gap-2 mb-1.5">
           <Link href={`/shop/${product.id}`} className="text-sm font-semibold text-white hover:text-amber-400 transition-colors leading-snug line-clamp-2">
@@ -69,8 +78,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-base font-black text-white">${product.price.toLocaleString()}</span>
-            {product.originalPrice && <span className="text-xs text-stone-500 line-through">${product.originalPrice.toLocaleString()}</span>}
+            <span className="text-base font-black text-white">{product.price.toLocaleString("tr-TR")}₺</span>
+            {product.originalPrice && <span className="text-xs text-stone-500 line-through">{product.originalPrice.toLocaleString("tr-TR")}₺</span>}
           </div>
           <span className="text-xs text-stone-500 bg-stone-800 px-2 py-0.5 rounded-lg">{product.size}</span>
         </div>

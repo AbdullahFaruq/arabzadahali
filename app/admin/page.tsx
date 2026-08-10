@@ -18,7 +18,7 @@ const emptySlide: Omit<Slide, "id"> = {
 export default function AdminPage() {
   const { user, isLoaded, isSignedIn } = useUser();
   const { signOut } = useClerk();
-  const { products, slides, addProduct, updateProduct, deleteProduct, updateSlide, addSlide, deleteSlide } = useStore();
+  const { products, slides, addProduct, updateProduct, deleteProduct, updateSlide, addSlide, deleteSlide, banner, updateBanner } = useStore();
   const router = useRouter();
 
   const [tab, setTab] = useState<Tab>("products");
@@ -29,6 +29,7 @@ export default function AdminPage() {
   const [editSlide, setEditSlide] = useState<Slide | null>(null);
   const [showAddSlide, setShowAddSlide] = useState(false);
   const [deleteSlideConfirm, setDeleteSlideConfirm] = useState<number | null>(null);
+  const [bannerText, setBannerText] = useState(banner);
   const [newSlide, setNewSlide] = useState<Omit<Slide, "id">>(emptySlide);
 
   const role = (user?.publicMetadata as { role?: string })?.role;
@@ -251,6 +252,27 @@ export default function AdminPage() {
         {/* ── SETTINGS TAB ── */}
         {tab === "settings" && (
           <div className="max-w-2xl space-y-6">
+            {/* Banner */}
+            <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6">
+              <h3 className="font-bold text-white mb-1">Announcement Banner</h3>
+              <p className="text-stone-500 text-sm mb-4">The top bar shown on every page.</p>
+              <div className="bg-amber-900/40 border border-amber-800/40 rounded-xl px-4 py-2.5 text-amber-100 text-xs text-center mb-4">{bannerText}</div>
+              <textarea
+                value={bannerText}
+                onChange={(e) => setBannerText(e.target.value)}
+                rows={2}
+                className={inputCls + " resize-none mb-3"}
+                placeholder="🎁 Free shipping on orders over $500 · Use code CARPET20 for 20% off"
+              />
+              <button
+                onClick={() => updateBanner(bannerText)}
+                className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-6 py-2.5 rounded-xl transition-all text-sm"
+              >
+                Save Banner
+              </button>
+            </div>
+
+            {/* Account */}
             <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6">
               <h3 className="font-bold text-white mb-1">Your Account</h3>
               <p className="text-stone-500 text-sm mb-4">Manage your profile via Clerk</p>
@@ -270,6 +292,7 @@ export default function AdminPage() {
               </a>
             </div>
 
+            {/* Data */}
             <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6">
               <h3 className="font-bold text-white mb-1">Data</h3>
               <p className="text-stone-500 text-sm mb-4">Products and slides are stored in localStorage. Reset to defaults if needed.</p>
