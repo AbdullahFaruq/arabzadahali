@@ -1,6 +1,34 @@
 "use client";
 import { useRef } from "react";
 
+const compressImage = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxWidth = 1400;
+        const scale = Math.min(1, maxWidth / img.width);
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Canvas is unavailable"));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.75));
+      };
+      img.onerror = () => reject(new Error("Image could not be loaded"));
+      img.src = String(reader.result);
+    };
+    reader.onerror = () => reject(new Error("File upload failed"));
+    reader.readAsDataURL(file);
+  });
+
 export default function ImageUploader({
   value,
   onChange,
@@ -12,12 +40,17 @@ export default function ImageUploader({
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => onChange(reader.result as string);
-    reader.readAsDataURL(file);
+
+    try {
+      const compressed = await compressImage(file);
+      onChange(compressed);
+    } catch {
+      onChange("");
+    }
+
     e.target.value = "";
   };
 
