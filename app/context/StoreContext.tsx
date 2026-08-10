@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { CartItem, Product } from "../types";
 import { products as initialProducts } from "../data/products";
-import { Slide, initialSlides } from "../data/slides";
+import { Slide, initialSlides, DiscoverSlide, initialDiscoverSlides } from "../data/slides";
 
 interface Toast { id: number; message: string; type: "success" | "error" | "info"; }
 
@@ -12,6 +12,7 @@ interface StoreCtx {
   toasts: Toast[];
   products: Product[];
   slides: Slide[];
+  discoverSlides: DiscoverSlide[];
   banner: string;
   updateBanner: (text: string) => void;
   addToCart: (p: Product, size?: string) => void;
@@ -30,6 +31,9 @@ interface StoreCtx {
   addSlide: (s: Omit<Slide, "id">) => void;
   deleteSlide: (id: number) => void;
   reorderSlides: (slides: Slide[]) => void;
+  addDiscoverSlide: (s: Omit<DiscoverSlide, "id">) => void;
+  updateDiscoverSlide: (s: DiscoverSlide) => void;
+  deleteDiscoverSlide: (id: number) => void;
 }
 
 const Ctx = createContext<StoreCtx | null>(null);
@@ -40,6 +44,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [slides, setSlides] = useState<Slide[]>(initialSlides);
+  const [discoverSlides, setDiscoverSlides] = useState<DiscoverSlide[]>(initialDiscoverSlides);
   const [banner, setBanner] = useState("🎁 Free shipping on orders over ₺500 · Use code CARPET20 for 20% off");
 
   useEffect(() => {
@@ -48,6 +53,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const w = localStorage.getItem("wishlist");
       const p = localStorage.getItem("products");
       const s = localStorage.getItem("slides");
+      const d = localStorage.getItem("discoverSlides");
       const b = localStorage.getItem("banner");
 
       if (c && c.length < 500000) setCart(JSON.parse(c));
@@ -62,6 +68,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (s && s.length < 500000) setSlides(JSON.parse(s));
       else if (s) localStorage.removeItem("slides");
 
+      if (d && d.length < 500000) setDiscoverSlides(JSON.parse(d));
+      else if (d) localStorage.removeItem("discoverSlides");
+
       if (b) setBanner(b);
     } catch {}
   }, []);
@@ -74,6 +83,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem(key);
       if (key === "products") setProducts(initialProducts);
       if (key === "slides") setSlides(initialSlides);
+      if (key === "discoverSlides") setDiscoverSlides(initialDiscoverSlides);
       if (key === "banner") setBanner("🎁 Free shipping on orders over ₺500 · Use code CARPET20 for 20% off");
     }
   }, []);
@@ -82,6 +92,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => { safeSetItem("wishlist", JSON.stringify(wishlist)); }, [wishlist, safeSetItem]);
   useEffect(() => { safeSetItem("products", JSON.stringify(products)); }, [products, safeSetItem]);
   useEffect(() => { safeSetItem("slides", JSON.stringify(slides)); }, [slides, safeSetItem]);
+  useEffect(() => { safeSetItem("discoverSlides", JSON.stringify(discoverSlides)); }, [discoverSlides, safeSetItem]);
   useEffect(() => { safeSetItem("banner", banner); }, [banner, safeSetItem]);
 
   const showToast = useCallback((message: string, type: Toast["type"] = "success") => {
@@ -152,12 +163,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const updateBanner = useCallback((text: string) => { setBanner(text); showToast("Banner updated"); }, [showToast]);
   const reorderSlides = useCallback((s: Slide[]) => setSlides(s), []);
 
+  const addDiscoverSlide = useCallback((s: Omit<DiscoverSlide, "id">) => {
+    setDiscoverSlides((prev) => [...prev, { ...s, id: Date.now() }]);
+    showToast("Discovery slide added");
+  }, [showToast]);
+
+  const updateDiscoverSlide = useCallback((s: DiscoverSlide) => {
+    setDiscoverSlides((prev) => prev.map((x) => x.id === s.id ? s : x));
+    showToast("Discovery slide updated");
+  }, [showToast]);
+
+  const deleteDiscoverSlide = useCallback((id: number) => {
+    setDiscoverSlides((prev) => prev.filter((x) => x.id !== id));
+    showToast("Discovery slide removed", "info");
+  }, [showToast]);
+
   const isWishlisted = useCallback((id: number) => wishlist.includes(id), [wishlist]);
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
   const cartTotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
 
   return (
-    <Ctx.Provider value={{ cart, wishlist, toasts, products, slides, banner, updateBanner, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, isWishlisted, cartCount, cartTotal, showToast, addProduct, updateProduct, deleteProduct, updateSlide, addSlide, deleteSlide, reorderSlides }}>
+    <Ctx.Provider value={{ cart, wishlist, toasts, products, slides, discoverSlides, banner, updateBanner, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, isWishlisted, cartCount, cartTotal, showToast, addProduct, updateProduct, deleteProduct, updateSlide, addSlide, deleteSlide, reorderSlides, addDiscoverSlide, updateDiscoverSlide, deleteDiscoverSlide }}>
       {children}
       <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
         {toasts.map((t) => (

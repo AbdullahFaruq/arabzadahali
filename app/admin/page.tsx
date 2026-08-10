@@ -6,19 +6,24 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { useStore } from "../context/StoreContext";
 import ProductForm from "../components/ProductForm";
 import { Product } from "../types";
-import { Slide, accentOptions } from "../data/slides";
+import { Slide, DiscoverSlide, accentOptions } from "../data/slides";
 import ImageUploader from "../components/ImageUploader";
 
-type Tab = "products" | "slides" | "settings";
+type Tab = "products" | "slides" | "discover" | "settings";
 
 const emptySlide: Omit<Slide, "id"> = {
   image: "", tag: "", title: "", sub: "", cta: "Shop Now", href: "/shop", accent: "from-amber-500 to-orange-500",
 };
 
+const emptyDiscoverSlide: DiscoverSlide = {
+  id: 0,
+  image: "", title: "", subtitle: "", href: "/shop",
+};
+
 export default function AdminPage() {
   const { user, isLoaded, isSignedIn } = useUser();
   const { signOut } = useClerk();
-  const { products, slides, addProduct, updateProduct, deleteProduct, updateSlide, addSlide, deleteSlide, banner, updateBanner } = useStore();
+  const { products, slides, discoverSlides, addProduct, updateProduct, deleteProduct, updateSlide, addSlide, deleteSlide, banner, updateBanner, addDiscoverSlide, updateDiscoverSlide, deleteDiscoverSlide } = useStore();
   const router = useRouter();
 
   const [tab, setTab] = useState<Tab>("products");
@@ -29,8 +34,12 @@ export default function AdminPage() {
   const [editSlide, setEditSlide] = useState<Slide | null>(null);
   const [showAddSlide, setShowAddSlide] = useState(false);
   const [deleteSlideConfirm, setDeleteSlideConfirm] = useState<number | null>(null);
+  const [editDiscoverSlide, setEditDiscoverSlide] = useState<DiscoverSlide | null>(null);
+  const [showAddDiscoverSlide, setShowAddDiscoverSlide] = useState(false);
+  const [deleteDiscoverSlideConfirm, setDeleteDiscoverSlideConfirm] = useState<number | null>(null);
   const [bannerText, setBannerText] = useState(banner);
   const [newSlide, setNewSlide] = useState<Omit<Slide, "id">>(emptySlide);
+  const [newDiscoverSlide, setNewDiscoverSlide] = useState<DiscoverSlide>(emptyDiscoverSlide);
 
   const role = (user?.publicMetadata as { role?: string })?.role;
   const isAdmin = isSignedIn && role === "admin";
@@ -105,6 +114,7 @@ export default function AdminPage() {
           {([
             { key: "products", label: "📦 Products" },
             { key: "slides", label: "🖼️ Hero Slides" },
+            { key: "discover", label: "✨ Keşfet Slider" },
             { key: "settings", label: "⚙️ Settings" },
           ] as { key: Tab; label: string }[]).map((t) => (
             <button key={t.key} onClick={() => setTab(t.key)} className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all ${tab === t.key ? "bg-amber-600 text-white shadow-lg" : "text-stone-400 hover:text-white"}`}>
@@ -249,6 +259,56 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* ── DISCOVER TAB ── */}
+        {tab === "discover" && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-stone-400 text-sm">{discoverSlides.length} discovery images · auto-rotating homepage gallery</p>
+              <button onClick={() => { setNewDiscoverSlide({ ...emptyDiscoverSlide, id: 0 }); setShowAddDiscoverSlide(true); }} className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white font-bold px-5 py-2.5 rounded-xl transition-all hover:shadow-lg hover:shadow-amber-500/30">
+                + Add Image
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {discoverSlides.map((slide, idx) => (
+                <div key={slide.id} className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden hover:border-stone-700 transition-colors">
+                  <div className="relative h-52 bg-stone-800 overflow-hidden">
+                    {slide.image ? (
+                      <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-stone-600 text-sm">No image</div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/10 to-transparent" />
+                    <div className="absolute bottom-3 left-4 right-4">
+                      <p className="text-white font-black text-base leading-tight whitespace-pre-line line-clamp-2">{slide.title || "Untitled"}</p>
+                    </div>
+                    <div className="absolute top-3 right-3 bg-stone-900/80 text-stone-400 text-xs px-2 py-1 rounded-lg">#{idx + 1}</div>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-sm text-stone-300 line-clamp-2">{slide.subtitle || "No subtitle"}</p>
+                    <p className="text-xs text-stone-500 mt-2">Link: {slide.href || "/shop"}</p>
+                    <div className="flex items-center justify-end gap-2 mt-4">
+                      <button onClick={() => setEditDiscoverSlide({ ...slide })} className="text-xs font-semibold bg-stone-800 hover:bg-amber-600/20 border border-stone-700 hover:border-amber-500/40 text-stone-300 hover:text-amber-400 px-3 py-1.5 rounded-xl transition-all">
+                        ✏️ Edit
+                      </button>
+                      {deleteDiscoverSlideConfirm === slide.id ? (
+                        <div className="flex items-center gap-1.5">
+                          <button onClick={() => { deleteDiscoverSlide(slide.id); setDeleteDiscoverSlideConfirm(null); }} className="text-xs font-bold bg-red-500/20 border border-red-500/40 text-red-400 px-3 py-1.5 rounded-xl transition-colors">Confirm</button>
+                          <button onClick={() => setDeleteDiscoverSlideConfirm(null)} className="text-xs text-stone-500 hover:text-white px-2 py-1.5">Cancel</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setDeleteDiscoverSlideConfirm(slide.id)} className="text-xs font-semibold bg-stone-800 hover:bg-red-500/20 border border-stone-700 hover:border-red-500/40 text-stone-300 hover:text-red-400 px-3 py-1.5 rounded-xl transition-all">
+                          🗑️
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── SETTINGS TAB ── */}
         {tab === "settings" && (
           <div className="max-w-2xl space-y-6">
@@ -369,6 +429,32 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* ── EDIT DISCOVERY SLIDE MODAL ── */}
+      {editDiscoverSlide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl p-8 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-black text-white">Edit Discovery Slide</h2>
+              <button onClick={() => setEditDiscoverSlide(null)} className="text-stone-400 hover:text-white text-2xl leading-none">×</button>
+            </div>
+            <DiscoverSlideForm slides={editDiscoverSlide} onChange={setEditDiscoverSlide} onSave={() => { updateDiscoverSlide(editDiscoverSlide); setEditDiscoverSlide(null); }} onCancel={() => setEditDiscoverSlide(null)} />
+          </div>
+        </div>
+      )}
+
+      {/* ── ADD DISCOVERY SLIDE MODAL ── */}
+      {showAddDiscoverSlide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl p-8 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-black text-white">Add Discovery Slide</h2>
+              <button onClick={() => setShowAddDiscoverSlide(false)} className="text-stone-400 hover:text-white text-2xl leading-none">×</button>
+            </div>
+            <DiscoverSlideForm slides={newDiscoverSlide} onChange={(s) => setNewDiscoverSlide(s)} onSave={() => { addDiscoverSlide({ image: newDiscoverSlide.image, title: newDiscoverSlide.title, subtitle: newDiscoverSlide.subtitle, href: newDiscoverSlide.href }); setShowAddDiscoverSlide(false); setNewDiscoverSlide({ ...emptyDiscoverSlide, id: 0 }); }} onCancel={() => setShowAddDiscoverSlide(false)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -432,6 +518,55 @@ function SlideForm({ slide, onChange, onSave, onCancel }: {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="flex gap-3 pt-2">
+        <button onClick={onSave} className="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-black py-3.5 rounded-xl transition-all hover:shadow-lg hover:shadow-amber-500/30">
+          Save Slide
+        </button>
+        <button onClick={onCancel} className="px-6 bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 font-semibold py-3.5 rounded-xl transition-colors">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DiscoverSlideForm({ slides, onChange, onSave, onCancel }: {
+  slides: DiscoverSlide;
+  onChange: (s: DiscoverSlide) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  const set = (key: keyof DiscoverSlide, val: string) => onChange({ ...slides, [key]: val });
+  const inputCls = "w-full bg-stone-800 border border-stone-700 text-white placeholder-stone-500 px-4 py-3 rounded-xl text-sm outline-none focus:border-amber-500 transition-colors";
+  const labelCls = "block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2";
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <label className={labelCls}>Image</label>
+        <ImageUploader value={slides.image} onChange={(val) => set("image", val)} placeholder="https://images.unsplash.com/..." />
+        {slides.image && (
+          <div className="mt-3 relative h-40 rounded-xl overflow-hidden bg-stone-800">
+            <img src={slides.image} alt="" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+          </div>
+        )}
+      </div>
+
+      <div>
+        <label className={labelCls}>Title</label>
+        <input value={slides.title} onChange={(e) => set("title", e.target.value)} placeholder="Persian Royal Masterpieces" className={inputCls} />
+      </div>
+
+      <div>
+        <label className={labelCls}>Subtitle</label>
+        <textarea value={slides.subtitle} onChange={(e) => set("subtitle", e.target.value)} rows={2} placeholder="Hand-knotted heritage rugs with centuries of story." className={inputCls + " resize-none"} />
+      </div>
+
+      <div>
+        <label className={labelCls}>Link URL</label>
+        <input value={slides.href} onChange={(e) => set("href", e.target.value)} placeholder="/shop?category=Persian" className={inputCls} />
       </div>
 
       <div className="flex gap-3 pt-2">

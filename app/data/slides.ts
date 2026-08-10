@@ -9,6 +9,14 @@ export interface Slide {
   accent: string;
 }
 
+export interface DiscoverSlide {
+  id: number;
+  image: string;
+  title: string;
+  subtitle: string;
+  href: string;
+}
+
 export const initialSlides: Slide[] = [
   {
     id: 1,
@@ -49,6 +57,44 @@ export const initialSlides: Slide[] = [
     cta: "Discover Vintage",
     href: "/shop?category=Vintage",
     accent: "from-teal-500 to-emerald-500",
+  },
+];
+
+export const initialDiscoverSlides: DiscoverSlide[] = [
+  {
+    id: 1,
+    image: "https://images.unsplash.com/photo-1600166898405-da9535204843?auto=format&fit=crop&w=1400&q=80",
+    title: "Persian Royal Masterpieces",
+    subtitle: "Hand-knotted heritage rugs with centuries of story.",
+    href: "/shop?category=Persian",
+  },
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1400&q=80",
+    title: "Moroccan Berber Luxury",
+    subtitle: "Textured warmth for modern and boho interiors.",
+    href: "/shop?category=Moroccan",
+  },
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1400&q=80",
+    title: "Modern Silk Blend Rugs",
+    subtitle: "Minimal, elegant, and richly tactile.",
+    href: "/shop?category=Modern",
+  },
+  {
+    id: 4,
+    image: "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1400&q=80",
+    title: "Vintage Overdyed Collection",
+    subtitle: "Bold colors and layered character for statement rooms.",
+    href: "/shop?category=Vintage",
+  },
+  {
+    id: 5,
+    image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1400&q=80",
+    title: "Custom Turkish Weaves",
+    subtitle: "Soft textures and graceful patterns for everyday luxury.",
+    href: "/shop?category=Turkish",
   },
 ];
 
