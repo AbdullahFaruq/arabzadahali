@@ -2,7 +2,8 @@ import Link from "next/link";
 import HeroSlider from "./components/HeroSlider";
 import ProductCard from "./components/ProductCard";
 import NewsletterForm from "./components/NewsletterForm";
-import { products, categories } from "./data/products";
+import AutoSlideGallery from "./components/AutoSlideGallery";
+import { products } from "./data/products";
 
 const featured = products.filter((p) => p.badge).slice(0, 4);
 const bestSellers = products.sort((a, b) => b.reviews - a.reviews).slice(0, 4);
@@ -44,36 +45,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Kategoriye Göre Alışveriş */}
+      {/* Keşfet */}
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="flex items-end justify-between mb-10">
           <div>
             <p className="text-amber-500 text-sm font-bold tracking-widest uppercase mb-2">Keşfet</p>
-            <h2 className="text-4xl font-black text-white">Kategoriye Göre Alışveriş</h2>
+            <h2 className="text-4xl font-black text-white">Özenle Seçilmiş Halı Koleksiyonları</h2>
           </div>
           <Link href="/shop" className="text-sm text-stone-400 hover:text-amber-400 transition-colors font-medium">
             Tümünü Gör →
           </Link>
         </div>
 
-        <div className="relative overflow-hidden rounded-3xl border border-stone-800 bg-stone-900/50 p-3">
-          <div className="flex gap-4 overflow-hidden">
-            {categories.filter((c) => c !== "Tümü" && categoryImages[c]).map((cat, index) => (
-              <Link
-                key={cat}
-                href={`/shop?category=${cat}`}
-                className="group relative min-w-[220px] w-[220px] md:min-w-[260px] md:w-[260px] overflow-hidden rounded-2xl aspect-square bg-stone-800 animate-[fadeSlide_12s_ease-in-out_infinite]"
-                style={{ animationDelay: `${index * 2}s` }}
-              >
-                <img src={categoryImages[cat]} alt={cat} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent" />
-                <div className="absolute bottom-3 left-0 right-0 text-center">
-                  <span className="text-sm font-bold text-white">{cat}</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+        <AutoSlideGallery />
       </section>
 
       {/* Öne Çıkan Ürünler */}
