@@ -44,6 +44,7 @@ export default function ImageUploader({
   placeholder?: string;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const isLocalImage = value.startsWith("data:");
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,9 +70,9 @@ export default function ImageUploader({
     <div className="space-y-2">
       <div className="flex gap-2">
         <input
-          value={value.startsWith("data:") ? "" : value}
+          value={isLocalImage ? "" : value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={value.startsWith("data:") ? "📁 Local file selected" : placeholder}
+          placeholder={isLocalImage ? "📁 Local image selected" : placeholder}
           className={inputCls + " flex-1"}
         />
         <button
@@ -86,6 +87,7 @@ export default function ImageUploader({
         </button>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
       </div>
+      {isLocalImage && <p className="text-[11px] text-amber-400">Local image selected and ready</p>}
       {value && (
         <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-stone-700 bg-stone-800 group">
           <img
