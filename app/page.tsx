@@ -55,16 +55,24 @@ export default function Home() {
             Tümünü Gör →
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.filter((c) => c !== "Tümü" && categoryImages[c]).map((cat) => (
-            <Link key={cat} href={`/shop?category=${cat}`} className="group relative overflow-hidden rounded-2xl aspect-square bg-stone-800">
-              <img src={categoryImages[cat]} alt={cat} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent" />
-              <div className="absolute bottom-3 left-0 right-0 text-center">
-                <span className="text-sm font-bold text-white">{cat}</span>
-              </div>
-            </Link>
-          ))}
+
+        <div className="relative overflow-hidden rounded-3xl border border-stone-800 bg-stone-900/50 p-3">
+          <div className="flex gap-4 overflow-hidden">
+            {categories.filter((c) => c !== "Tümü" && categoryImages[c]).map((cat, index) => (
+              <Link
+                key={cat}
+                href={`/shop?category=${cat}`}
+                className="group relative min-w-[220px] w-[220px] md:min-w-[260px] md:w-[260px] overflow-hidden rounded-2xl aspect-square bg-stone-800 animate-[fadeSlide_12s_ease-in-out_infinite]"
+                style={{ animationDelay: `${index * 2}s` }}
+              >
+                <img src={categoryImages[cat]} alt={cat} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent" />
+                <div className="absolute bottom-3 left-0 right-0 text-center">
+                  <span className="text-sm font-bold text-white">{cat}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
