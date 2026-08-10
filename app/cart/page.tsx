@@ -132,9 +132,9 @@ export default function CartPage() {
                 {!promoApplied && <p className="text-xs text-stone-600 mt-2">Dene: CARPET20</p>}
               </div>
 
-              <button className="w-full bg-amber-600 hover:bg-amber-500 text-white font-black py-4 rounded-xl transition-all hover:shadow-lg hover:shadow-amber-500/30 mb-3">
+              <Link href="/checkout" className="block w-full text-center bg-amber-600 hover:bg-amber-500 text-white font-black py-4 rounded-xl transition-all hover:shadow-lg hover:shadow-amber-500/30 mb-3">
                 Ödemeye Geç →
-              </button>
+              </Link>
               <Link href="/shop" className="block w-full text-center text-sm text-stone-400 hover:text-white transition-colors py-2">
                 ← Alışverişe Devam Et
               </Link>
