@@ -154,8 +154,8 @@ export default function AdminPage() {
                           <span className="text-xs bg-stone-800 text-stone-300 px-2.5 py-1 rounded-lg">{p.category}</span>
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className="text-sm font-bold text-white">${p.price.toLocaleString()}</span>
-                          {p.originalPrice && <span className="text-xs text-stone-500 line-through ml-1.5">${p.originalPrice.toLocaleString()}</span>}
+                          <span className="text-sm font-bold text-white">{p.price.toLocaleString("tr-TR")}₺</span>
+                          {p.originalPrice && <span className="text-xs text-stone-500 line-through ml-1.5">{p.originalPrice.toLocaleString("tr-TR")}₺</span>}
                         </td>
                         <td className="px-4 py-3.5 hidden sm:table-cell">
                           <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${p.inStock ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"}`}>
@@ -262,7 +262,7 @@ export default function AdminPage() {
                 onChange={(e) => setBannerText(e.target.value)}
                 rows={2}
                 className={inputCls + " resize-none mb-3"}
-                placeholder="🎁 Free shipping on orders over $500 · Use code CARPET20 for 20% off"
+                placeholder="🎁 Free shipping on orders over ₺500 · Use code CARPET20 for 20% off"
               />
               <button
                 onClick={() => updateBanner(bannerText)}

@@ -84,11 +84,11 @@ export default function ProductForm({
       {/* Price */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <div>
-          <label className={labelCls}>Price ($) *</label>
+          <label className={labelCls}>Price (₺) *</label>
           <input required type="number" min={0} value={form.price || ""} onChange={(e) => set("price", e.target.value)} placeholder="0" className={inputCls} />
         </div>
         <div>
-          <label className={labelCls}>Original Price ($)</label>
+          <label className={labelCls}>Original Price (₺)</label>
           <input type="number" min={0} value={form.originalPrice || ""} onChange={(e) => set("originalPrice", e.target.value || undefined)} placeholder="Optional" className={inputCls} />
         </div>
         <div>

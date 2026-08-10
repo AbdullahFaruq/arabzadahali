@@ -40,7 +40,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [slides, setSlides] = useState<Slide[]>(initialSlides);
-  const [banner, setBanner] = useState("🎁 Free shipping on orders over $500 · Use code CARPET20 for 20% off");
+  const [banner, setBanner] = useState("🎁 Free shipping on orders over ₺500 · Use code CARPET20 for 20% off");
 
   useEffect(() => {
     try {

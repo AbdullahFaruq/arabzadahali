@@ -248,8 +248,8 @@ export const categories = ["All", "Persian", "Moroccan", "Turkish", "Modern", "V
 export const colors = ["All", "Red", "Blue", "Gray", "Ivory", "Teal", "White", "Beige", "Gold", "Navy", "Green", "Multicolor"];
 export const sizes = ["All", "2.5x10", "4x6", "5x7", "5x8", "6x9", "8x10", "9x12", "10x14"];
 export const priceRanges = [
-  { label: "Under $500", min: 0, max: 500 },
-  { label: "$500 – $1,000", min: 500, max: 1000 },
-  { label: "$1,000 – $1,500", min: 1000, max: 1500 },
-  { label: "Over $1,500", min: 1500, max: Infinity },
+  { label: "Under ₺500", min: 0, max: 500 },
+  { label: "₺500 – ₺1,000", min: 500, max: 1000 },
+  { label: "₺1,000 – ₺1,500", min: 1000, max: 1500 },
+  { label: "Over ₺1,500", min: 1500, max: Infinity },
 ];

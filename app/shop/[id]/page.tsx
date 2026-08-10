@@ -85,11 +85,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
             {/* Price */}
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-4xl font-black text-white">${product.price.toLocaleString()}</span>
+              <span className="text-4xl font-black text-white">{product.price.toLocaleString("tr-TR")}₺</span>
               {product.originalPrice && (
                 <>
-                  <span className="text-xl text-stone-500 line-through">${product.originalPrice.toLocaleString()}</span>
-                  <span className="bg-red-500/20 text-red-400 text-sm font-bold px-3 py-1 rounded-lg">Save ${(product.originalPrice - product.price).toLocaleString()}</span>
+                  <span className="text-xl text-stone-500 line-through">{product.originalPrice.toLocaleString("tr-TR")}₺</span>
+                  <span className="bg-red-500/20 text-red-400 text-sm font-bold px-3 py-1 rounded-lg">Save {(product.originalPrice - product.price).toLocaleString("tr-TR")}₺</span>
                 </>
               )}
             </div>
@@ -149,7 +149,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
             {/* Trust */}
             <div className="flex flex-wrap gap-4 text-xs text-stone-500">
-              <span className="flex items-center gap-1.5">🚚 Free shipping over $500</span>
+              <span className="flex items-center gap-1.5">🚚 Free shipping over ₺500</span>
               <span className="flex items-center gap-1.5">↩️ 30-day returns</span>
               <span className="flex items-center gap-1.5">🔒 Secure checkout</span>
             </div>
