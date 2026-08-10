@@ -48,20 +48,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const w = localStorage.getItem("wishlist");
       const p = localStorage.getItem("products");
       const s = localStorage.getItem("slides");
-      if (c) setCart(JSON.parse(c));
-      if (w) setWishlist(JSON.parse(w));
-      if (p) setProducts(JSON.parse(p));
-      if (s) setSlides(JSON.parse(s));
       const b = localStorage.getItem("banner");
+
+      if (c && c.length < 500000) setCart(JSON.parse(c));
+      else if (c) localStorage.removeItem("cart");
+
+      if (w && w.length < 500000) setWishlist(JSON.parse(w));
+      else if (w) localStorage.removeItem("wishlist");
+
+      if (p && p.length < 500000) setProducts(JSON.parse(p));
+      else if (p) localStorage.removeItem("products");
+
+      if (s && s.length < 500000) setSlides(JSON.parse(s));
+      else if (s) localStorage.removeItem("slides");
+
       if (b) setBanner(b);
     } catch {}
   }, []);
 
-  useEffect(() => { localStorage.setItem("cart", JSON.stringify(cart)); }, [cart]);
-  useEffect(() => { localStorage.setItem("wishlist", JSON.stringify(wishlist)); }, [wishlist]);
-  useEffect(() => { localStorage.setItem("products", JSON.stringify(products)); }, [products]);
-  useEffect(() => { localStorage.setItem("slides", JSON.stringify(slides)); }, [slides]);
-  useEffect(() => { localStorage.setItem("banner", banner); }, [banner]);
+  const safeSetItem = useCallback((key: string, value: string) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      console.warn(`localStorage quota exceeded for ${key}. Resetting cached data.`);
+      localStorage.removeItem(key);
+      if (key === "products") setProducts(initialProducts);
+      if (key === "slides") setSlides(initialSlides);
+      if (key === "banner") setBanner("🎁 Free shipping on orders over ₺500 · Use code CARPET20 for 20% off");
+    }
+  }, []);
+
+  useEffect(() => { safeSetItem("cart", JSON.stringify(cart)); }, [cart, safeSetItem]);
+  useEffect(() => { safeSetItem("wishlist", JSON.stringify(wishlist)); }, [wishlist, safeSetItem]);
+  useEffect(() => { safeSetItem("products", JSON.stringify(products)); }, [products, safeSetItem]);
+  useEffect(() => { safeSetItem("slides", JSON.stringify(slides)); }, [slides, safeSetItem]);
+  useEffect(() => { safeSetItem("banner", banner); }, [banner, safeSetItem]);
 
   const showToast = useCallback((message: string, type: Toast["type"] = "success") => {
     const id = Date.now();

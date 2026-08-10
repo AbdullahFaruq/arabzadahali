@@ -8,8 +8,9 @@ const compressImage = (file: File): Promise<string> =>
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const maxWidth = 1400;
-        const scale = Math.min(1, maxWidth / img.width);
+        const maxWidth = 1200;
+        const maxHeight = 1200;
+        const scale = Math.min(1, maxWidth / img.width, maxHeight / img.height);
         canvas.width = Math.max(1, Math.round(img.width * scale));
         canvas.height = Math.max(1, Math.round(img.height * scale));
 
@@ -19,8 +20,12 @@ const compressImage = (file: File): Promise<string> =>
           return;
         }
 
+        ctx.fillStyle = "#111827";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.75));
+
+        const output = canvas.toDataURL("image/jpeg", 0.62);
+        resolve(output.length > 500000 ? canvas.toDataURL("image/jpeg", 0.4) : output);
       };
       img.onerror = () => reject(new Error("Image could not be loaded"));
       img.src = String(reader.result);
@@ -49,6 +54,9 @@ export default function ImageUploader({
       onChange(compressed);
     } catch {
       onChange("");
+      if (typeof window !== "undefined") {
+        window.alert("The image is too large or could not be processed. Please choose a smaller photo.");
+      }
     }
 
     e.target.value = "";
