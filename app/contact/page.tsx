@@ -53,7 +53,7 @@ export default function ContactPage() {
                 <a
                   href={whatsappChatUrl("Hello, I want to ask about your rugs.")}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-white font-black px-7 py-3.5 rounded-2xl transition-all hover:shadow-lg hover:shadow-emerald-500/30"
                 >
                   WhatsApp us
