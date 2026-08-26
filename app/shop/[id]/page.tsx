@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { useStore } from "../../context/StoreContext";
+import { sizes } from "../../data/products";
 import ProductCard from "../../components/ProductCard";
 import StarRating from "../../components/StarRating";
 import { use } from "react";
@@ -20,6 +21,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   if (!product) notFound();
   const [activeImg, setActiveImg] = useState(0);
   const [selectedSize, setSelectedSize] = useState(product.size);
+
+  // The product's own size always leads, followed by the standard metre presets.
+  const sizeOptions = useMemo(
+    () => [product.size, ...sizes.filter((s) => s !== product.size)],
+    [product.size]
+  );
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState<"description" | "features" | "reviews">("description");
 
@@ -116,7 +123,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 <button className="text-xs text-amber-500 hover:text-amber-400 underline">Size Guide</button>
               </div>
               <div className="flex flex-wrap gap-2">
-                {["2.5x10", "4x6", "5x7", "5x8", "6x9", "8x10", "9x12", "10x14"].map((s) => (
+                {sizeOptions.map((s) => (
                   <button key={s} onClick={() => setSelectedSize(s)} className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${selectedSize === s ? "bg-amber-600 border-amber-600 text-white" : "border-stone-700 text-stone-400 hover:border-stone-500 hover:text-white"}`}>
                     {s}
                   </button>

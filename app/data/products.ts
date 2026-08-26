@@ -10,7 +10,7 @@ export const products: Product[] = [
     reviews: 128,
     category: "Persian",
     color: "Red",
-    size: "8x10",
+    size: "2.4x3m",
     material: "Hand-knotted Wool",
     image: "https://images.unsplash.com/photo-1600166898405-da9535204843?w=600&q=80",
     images: [
@@ -32,7 +32,7 @@ export const products: Product[] = [
     reviews: 94,
     category: "Moroccan",
     color: "Ivory",
-    size: "6x9",
+    size: "1.8x2.7m",
     material: "Wool",
     image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
     images: [
@@ -53,7 +53,7 @@ export const products: Product[] = [
     reviews: 76,
     category: "Turkish",
     color: "Blue",
-    size: "5x8",
+    size: "1.5x2.4m",
     material: "Cotton & Wool",
     image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80",
     images: [
@@ -73,7 +73,7 @@ export const products: Product[] = [
     reviews: 52,
     category: "Modern",
     color: "Gray",
-    size: "9x12",
+    size: "2.7x3.6m",
     material: "Silk Blend",
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
     images: [
@@ -93,7 +93,7 @@ export const products: Product[] = [
     reviews: 113,
     category: "Vintage",
     color: "Teal",
-    size: "6x9",
+    size: "1.8x2.7m",
     material: "Recycled Wool",
     image: "https://images.unsplash.com/photo-1567016432779-094069958ea5?w=600&q=80",
     images: [
@@ -113,7 +113,7 @@ export const products: Product[] = [
     reviews: 88,
     category: "Modern",
     color: "White",
-    size: "4x6",
+    size: "1.2x1.8m",
     material: "Cotton",
     image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&q=80",
     images: [
@@ -133,7 +133,7 @@ export const products: Product[] = [
     reviews: 34,
     category: "Persian",
     color: "Red",
-    size: "10x14",
+    size: "3x4.2m",
     material: "Hand-knotted Wool",
     image: "https://images.unsplash.com/photo-1600166898405-da9535204843?w=600&q=80",
     images: [
@@ -153,7 +153,7 @@ export const products: Product[] = [
     reviews: 201,
     category: "Natural",
     color: "Beige",
-    size: "8x10",
+    size: "2.4x3m",
     material: "Jute",
     image: "https://images.unsplash.com/photo-1567016432779-094069958ea5?w=600&q=80",
     images: [
@@ -173,7 +173,7 @@ export const products: Product[] = [
     reviews: 67,
     category: "Modern",
     color: "Gold",
-    size: "8x10",
+    size: "2.4x3m",
     material: "Viscose & Wool",
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
     images: [
@@ -193,7 +193,7 @@ export const products: Product[] = [
     reviews: 145,
     category: "Vintage",
     color: "Multicolor",
-    size: "6x9",
+    size: "1.8x2.7m",
     material: "Leather & Wool",
     image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&q=80",
     images: [
@@ -212,7 +212,7 @@ export const products: Product[] = [
     reviews: 59,
     category: "Persian",
     color: "Navy",
-    size: "2.5x10",
+    size: "0.8x3m",
     material: "Silk Blend",
     image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
     images: [
@@ -231,7 +231,7 @@ export const products: Product[] = [
     reviews: 312,
     category: "Outdoor",
     color: "Green",
-    size: "5x7",
+    size: "1.5x2.1m",
     material: "Polypropylene",
     image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&q=80",
     images: [
@@ -246,7 +246,8 @@ export const products: Product[] = [
 
 export const categories = ["All", "Persian", "Moroccan", "Turkish", "Modern", "Vintage", "Natural", "Outdoor"];
 export const colors = ["All", "Red", "Blue", "Gray", "Ivory", "Teal", "White", "Beige", "Gold", "Navy", "Green", "Multicolor"];
-export const sizes = ["All", "2.5x10", "4x6", "5x7", "5x8", "6x9", "8x10", "9x12", "10x14"];
+// Metre presets offered as quick picks; admins can enter any dimensions.
+export const sizes = ["0.8x3m", "1.2x1.8m", "1.5x2.1m", "1.5x2.4m", "1.8x2.7m", "2.4x3m", "2.7x3.6m", "3x4.2m"];
 export const priceRanges = [
   { label: "Under ₺500", min: 0, max: 500 },
   { label: "₺500 – ₺1,000", min: 500, max: 1000 },

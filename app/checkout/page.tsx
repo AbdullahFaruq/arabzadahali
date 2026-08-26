@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useStore } from "../context/StoreContext";
 
-const IBAN_PLACEHOLDER = "TR12 3456 7890 1234 5678 9012 34";
-const ACCOUNT_NAME_PLACEHOLDER = "Arabzada Store";
-const WHATSAPP_PHONE_PLACEHOLDER = "15551234567";
+const IBAN = "TR970020500009745808400002";
+const ACCOUNT_NAME = "FAZAL HAQ ARABZADA";
+const WHATSAPP_PHONE = "905523852376";
 
 export default function CheckoutPage() {
   const { cart, cartTotal } = useStore();
@@ -33,7 +33,7 @@ export default function CheckoutPage() {
       orderSummary ? `Items: ${orderSummary}.` : ""
     } Total: ${cartTotal.toLocaleString("tr-TR")}₺.`;
 
-    return `https://wa.me/${WHATSAPP_PHONE_PLACEHOLDER}?text=${encodeURIComponent(message)}`;
+    return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
   }, [cart, cartTotal]);
 
   if (cart.length === 0) {
@@ -107,14 +107,14 @@ export default function CheckoutPage() {
                     <h2 className="text-2xl font-black text-white">Account holder</h2>
                     <button
                       type="button"
-                      onClick={() => copyToClipboard(ACCOUNT_NAME_PLACEHOLDER, "name")}
+                      onClick={() => copyToClipboard(ACCOUNT_NAME, "name")}
                       className="text-xs font-semibold text-amber-300 hover:text-amber-200 transition-colors"
                     >
                       {copiedField === "name" ? "Copied" : "Copy"}
                     </button>
                   </div>
                   <div className="bg-stone-950/70 border border-stone-700 rounded-2xl px-4 py-3 text-base font-semibold text-amber-100 break-all">
-                    {ACCOUNT_NAME_PLACEHOLDER}
+                    {ACCOUNT_NAME}
                   </div>
                 </div>
 
@@ -123,14 +123,14 @@ export default function CheckoutPage() {
                     <h2 className="text-2xl font-black text-white">IBAN</h2>
                     <button
                       type="button"
-                      onClick={() => copyToClipboard(IBAN_PLACEHOLDER, "iban")}
+                      onClick={() => copyToClipboard(IBAN, "iban")}
                       className="text-xs font-semibold text-amber-300 hover:text-amber-200 transition-colors"
                     >
                       {copiedField === "iban" ? "Copied" : "Copy"}
                     </button>
                   </div>
                   <div className="bg-stone-950/70 border border-stone-700 rounded-2xl px-4 py-3 text-base font-semibold text-amber-200 break-all">
-                    {IBAN_PLACEHOLDER}
+                    {IBAN}
                   </div>
                 </div>
               </div>

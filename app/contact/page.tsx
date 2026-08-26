@@ -1,28 +1,32 @@
 import Link from "next/link";
 
+const WHATSAPP_PHONE = "905523852376";
+const PHONE_DISPLAY = "0552 385 23 76";
+const EMAIL = "İstanbulrugs1@gmail.com";
+
 const contactCards = [
   {
     icon: "📍",
     title: "Visit us",
-    value: "123 Artisan Avenue, Istanbul, Turkey",
+    value: "Taşderek Çeşme Sokak, Orhan Gülüç Han No 16, Shop 101",
     accent: "text-amber-400",
   },
   {
     icon: "📞",
     title: "Call us",
-    value: "+90 (555) 123 45 67",
+    value: PHONE_DISPLAY,
     accent: "text-emerald-400",
   },
   {
     icon: "✉️",
     title: "Email us",
-    value: "hello@arabzada.com",
+    value: EMAIL,
     accent: "text-sky-400",
   },
   {
     icon: "🕒",
     title: "Hours",
-    value: "Mon–Sat · 9:00 AM – 7:00 PM",
+    value: "Open 24/7",
     accent: "text-violet-400",
   },
 ];
@@ -48,7 +52,7 @@ export default function ContactPage() {
 
               <div className="mt-8 flex flex-wrap gap-4">
                 <a
-                  href="https://wa.me/15551234567?text=Hello%20I%20want%20to%20ask%20about%20your%20rugs."
+                  href={`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent("Hello, I want to ask about your rugs.")}`}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-white font-black px-7 py-3.5 rounded-2xl transition-all hover:shadow-lg hover:shadow-emerald-500/30"
@@ -56,7 +60,7 @@ export default function ContactPage() {
                   WhatsApp us
                 </a>
                 <a
-                  href="mailto:hello@arabzada.com"
+                  href={`mailto:${EMAIL}`}
                   className="inline-flex items-center justify-center border border-stone-700 hover:border-amber-500/50 text-stone-200 hover:text-amber-400 font-semibold px-7 py-3.5 rounded-2xl transition-all"
                 >
                   Email us

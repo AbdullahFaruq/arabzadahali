@@ -2,7 +2,8 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import ProductCard from "../components/ProductCard";
-import { categories, colors, sizes, priceRanges } from "../data/products";
+import { categories, colors, priceRanges } from "../data/products";
+import { parseSize } from "../lib/size";
 import { useStore } from "../context/StoreContext";
 import Link from "next/link";
 
@@ -42,6 +43,17 @@ export default function ShopClient() {
       default: return list;
     }
   }, [category, color, size, priceRange, sort, search, inStockOnly, products]);
+
+  // Built from the products themselves so any size an admin enters shows up here.
+  const sizeOptions = useMemo(() => {
+    const unique = Array.from(new Set(products.map((p) => p.size).filter(Boolean)));
+    const area = (s: string) => {
+      const dims = parseSize(s);
+      return dims ? dims.width * dims.length : Number.POSITIVE_INFINITY;
+    };
+    unique.sort((a, b) => area(a) - area(b) || a.localeCompare(b));
+    return ["Tümü", ...unique];
+  }, [products]);
 
   const activeFilters = [
     category !== "Tümü" && category,
@@ -88,7 +100,7 @@ export default function ShopClient() {
       <div>
         <h3 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">Boyut</h3>
         <div className="flex flex-wrap gap-2">
-          {sizes.map((s) => (
+          {sizeOptions.map((s) => (
             <button key={s} onClick={() => setSize(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${size === s ? "bg-amber-600 text-white" : "bg-stone-800 text-stone-400 hover:text-white"}`}>
               {s}
             </button>

@@ -2,13 +2,14 @@
 import { useState } from "react";
 import { Product } from "../types";
 import { categories, colors, sizes } from "../data/products";
+import { formatSize, parseSize } from "../lib/size";
 import ImageUploader from "./ImageUploader";
 
 type FormData = Omit<Product, "id">;
 
 const empty: FormData = {
   name: "", price: 0, originalPrice: undefined, rating: 5, reviews: 0,
-  category: "Persian", color: "Red", size: "8x10", material: "",
+  category: "Persian", color: "Red", size: "2.4x3m", material: "",
   image: "", images: [""], badge: "", description: "", features: [""], inStock: true,
 };
 
@@ -27,8 +28,23 @@ export default function ProductForm({
     initial ? { ...initial } : empty
   );
 
+  // Size is stored as a single "16x8m" string, edited as two metre values.
+  const initialDims = parseSize(form.size);
+  const [width, setWidth] = useState(initialDims ? String(initialDims.width) : "");
+  const [length, setLength] = useState(initialDims ? String(initialDims.length) : "");
+
   const set = (key: keyof FormData, val: unknown) =>
     setForm((f) => ({ ...f, [key]: val }));
+
+  const setDimension = (which: "width" | "length", raw: string) => {
+    const next = { width, length, [which]: raw };
+    if (which === "width") setWidth(raw);
+    else setLength(raw);
+
+    const w = parseFloat(next.width.replace(",", "."));
+    const l = parseFloat(next.length.replace(",", "."));
+    set("size", w > 0 && l > 0 ? formatSize(w, l) : "");
+  };
 
   const setImage = (i: number, val: string) => {
     const imgs = [...form.images];
@@ -112,10 +128,52 @@ export default function ProductForm({
           </select>
         </div>
         <div>
-          <label className={labelCls}>Size *</label>
-          <select value={form.size} onChange={(e) => set("size", e.target.value)} className={inputCls + " cursor-pointer"}>
-            {sizes.filter((s) => s !== "All").map((s) => <option key={s}>{s}</option>)}
-          </select>
+          <label className={labelCls}>Size (metres) *</label>
+          <div className="flex items-center gap-2">
+            <input
+              required
+              type="number"
+              min={0.1}
+              step={0.1}
+              value={width}
+              onChange={(e) => setDimension("width", e.target.value)}
+              placeholder="16"
+              className={inputCls}
+            />
+            <span className="text-stone-400 font-bold">×</span>
+            <input
+              required
+              type="number"
+              min={0.1}
+              step={0.1}
+              value={length}
+              onChange={(e) => setDimension("length", e.target.value)}
+              placeholder="8"
+              className={inputCls}
+            />
+            <span className="text-stone-400 font-bold">m</span>
+          </div>
+          <p className="text-xs text-stone-500 mt-2">
+            Saved as <span className="text-amber-400 font-semibold">{form.size || "16x8m"}</span>
+          </p>
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {sizes.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => {
+                  const dims = parseSize(s);
+                  if (!dims) return;
+                  setWidth(String(dims.width));
+                  setLength(String(dims.length));
+                  set("size", s);
+                }}
+                className={`px-2 py-1 rounded-lg text-[11px] font-medium transition-colors ${form.size === s ? "bg-amber-600 text-white" : "bg-stone-800 text-stone-400 hover:text-white"}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
