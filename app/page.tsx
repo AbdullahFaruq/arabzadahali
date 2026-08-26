@@ -1,12 +1,10 @@
+"use client";
 import Link from "next/link";
 import HeroSlider from "./components/HeroSlider";
 import ProductCard from "./components/ProductCard";
 import NewsletterForm from "./components/NewsletterForm";
 import AutoSlideGallery from "./components/AutoSlideGallery";
-import { products } from "./data/products";
-
-const featured = products.filter((p) => p.badge).slice(0, 4);
-const bestSellers = products.sort((a, b) => b.reviews - a.reviews).slice(0, 4);
+import { useStore } from "./context/StoreContext";
 
 const categoryImages: Record<string, string> = {
   İran: "https://images.unsplash.com/photo-1600166898405-da9535204843?w=400&q=80",
@@ -26,6 +24,10 @@ const trustBadges = [
 ];
 
 export default function Home() {
+  const { products } = useStore();
+  const featured = products.filter((p) => p.badge).slice(0, 4);
+  const bestSellers = [...products].sort((a, b) => b.reviews - a.reviews).slice(0, 4);
+
   return (
     <main className="bg-stone-950 text-white min-h-screen">
       <HeroSlider />

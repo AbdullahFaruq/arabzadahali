@@ -12,6 +12,12 @@ const isPublicRoute = createRouteMatcher([
   "/wishlist",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  // Public read endpoints — the route handlers themselves gate writes
+  // (POST/PATCH/DELETE) to admins via requireAdmin().
+  "/api/products(.*)",
+  "/api/slides(.*)",
+  "/api/discover-slides(.*)",
+  "/api/settings(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

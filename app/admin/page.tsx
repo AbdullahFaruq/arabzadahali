@@ -6,19 +6,14 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { useStore } from "../context/StoreContext";
 import ProductForm from "../components/ProductForm";
 import { Product } from "../types";
-import { Slide, DiscoverSlide, accentOptions } from "../data/slides";
-import ImageUploader from "../components/ImageUploader";
+import { Slide, DiscoverSlide } from "../data/slides";
+import ImageUploader, { HD_PRESET } from "../components/ImageUploader";
 
 type Tab = "products" | "slides" | "discover" | "settings";
 
-const emptySlide: Omit<Slide, "id"> = {
-  image: "", tag: "", title: "", sub: "", cta: "Shop Now", href: "/shop", accent: "from-amber-500 to-orange-500",
-};
+const emptySlide: Omit<Slide, "id"> = { image: "" };
 
-const emptyDiscoverSlide: DiscoverSlide = {
-  id: 0,
-  image: "", title: "", subtitle: "", href: "/shop",
-};
+const emptyDiscoverSlide: DiscoverSlide = { id: 0, image: "" };
 
 export default function AdminPage() {
   const { user, isLoaded, isSignedIn } = useUser();
@@ -220,23 +215,14 @@ export default function AdminPage() {
                   {/* Preview */}
                   <div className="relative h-40 bg-stone-800 overflow-hidden">
                     {slide.image ? (
-                      <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                      <img src={slide.image} alt="" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-stone-600 text-sm">No image</div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-r from-stone-950/80 to-transparent" />
-                    <div className="absolute bottom-3 left-4">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-gradient-to-r ${slide.accent} text-white`}>{slide.tag || "Tag"}</span>
-                      <p className="text-white font-black text-sm mt-1 leading-tight whitespace-pre-line line-clamp-2">{slide.title || "Title"}</p>
-                    </div>
                     <div className="absolute top-3 right-3 bg-stone-900/80 text-stone-400 text-xs px-2 py-1 rounded-lg">Slide {idx + 1}</div>
                   </div>
                   {/* Actions */}
-                  <div className="p-4 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-white line-clamp-1">{slide.title || "Untitled"}</p>
-                      <p className="text-xs text-stone-500 mt-0.5">{slide.cta} → {slide.href}</p>
-                    </div>
+                  <div className="p-4 flex items-center justify-end">
                     <div className="flex items-center gap-2">
                       <button onClick={() => setEditSlide({ ...slide })} className="text-xs font-semibold bg-stone-800 hover:bg-amber-600/20 border border-stone-700 hover:border-amber-500/40 text-stone-300 hover:text-amber-400 px-3 py-1.5 rounded-xl transition-all">
                         ✏️ Edit
@@ -274,20 +260,14 @@ export default function AdminPage() {
                 <div key={slide.id} className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden hover:border-stone-700 transition-colors">
                   <div className="relative h-52 bg-stone-800 overflow-hidden">
                     {slide.image ? (
-                      <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                      <img src={slide.image} alt="" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-stone-600 text-sm">No image</div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/10 to-transparent" />
-                    <div className="absolute bottom-3 left-4 right-4">
-                      <p className="text-white font-black text-base leading-tight whitespace-pre-line line-clamp-2">{slide.title || "Untitled"}</p>
-                    </div>
                     <div className="absolute top-3 right-3 bg-stone-900/80 text-stone-400 text-xs px-2 py-1 rounded-lg">#{idx + 1}</div>
                   </div>
                   <div className="p-4">
-                    <p className="text-sm text-stone-300 line-clamp-2">{slide.subtitle || "No subtitle"}</p>
-                    <p className="text-xs text-stone-500 mt-2">Link: {slide.href || "/shop"}</p>
-                    <div className="flex items-center justify-end gap-2 mt-4">
+                    <div className="flex items-center justify-end gap-2">
                       <button onClick={() => setEditDiscoverSlide({ ...slide })} className="text-xs font-semibold bg-stone-800 hover:bg-amber-600/20 border border-stone-700 hover:border-amber-500/40 text-stone-300 hover:text-amber-400 px-3 py-1.5 rounded-xl transition-all">
                         ✏️ Edit
                       </button>
@@ -355,15 +335,7 @@ export default function AdminPage() {
             {/* Data */}
             <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6">
               <h3 className="font-bold text-white mb-1">Data</h3>
-              <p className="text-stone-500 text-sm mb-4">Products and slides are stored in localStorage. Reset to defaults if needed.</p>
-              <div className="flex gap-3">
-                <button onClick={() => { localStorage.removeItem("products"); window.location.reload(); }} className="text-sm bg-stone-800 hover:bg-red-500/20 border border-stone-700 hover:border-red-500/40 text-stone-300 hover:text-red-400 px-4 py-2.5 rounded-xl transition-all">
-                  Reset Products
-                </button>
-                <button onClick={() => { localStorage.removeItem("slides"); window.location.reload(); }} className="text-sm bg-stone-800 hover:bg-red-500/20 border border-stone-700 hover:border-red-500/40 text-stone-300 hover:text-red-400 px-4 py-2.5 rounded-xl transition-all">
-                  Reset Slides
-                </button>
-              </div>
+              <p className="text-stone-500 text-sm">Products, slides and settings are stored in the database and shared with every visitor. Edit or delete items directly from the tabs above — no bulk reset needed.</p>
             </div>
           </div>
         )}
@@ -451,7 +423,7 @@ export default function AdminPage() {
               <h2 className="text-xl font-black text-white">Add Discovery Slide</h2>
               <button onClick={() => setShowAddDiscoverSlide(false)} className="text-stone-400 hover:text-white text-2xl leading-none">×</button>
             </div>
-            <DiscoverSlideForm slides={newDiscoverSlide} onChange={(s) => setNewDiscoverSlide(s)} onSave={() => { addDiscoverSlide({ image: newDiscoverSlide.image, title: newDiscoverSlide.title, subtitle: newDiscoverSlide.subtitle, href: newDiscoverSlide.href }); setShowAddDiscoverSlide(false); setNewDiscoverSlide({ ...emptyDiscoverSlide, id: 0 }); }} onCancel={() => setShowAddDiscoverSlide(false)} />
+            <DiscoverSlideForm slides={newDiscoverSlide} onChange={(s) => setNewDiscoverSlide(s)} onSave={() => { addDiscoverSlide({ image: newDiscoverSlide.image }); setShowAddDiscoverSlide(false); setNewDiscoverSlide({ ...emptyDiscoverSlide, id: 0 }); }} onCancel={() => setShowAddDiscoverSlide(false)} />
           </div>
         </div>
       )}
@@ -465,59 +437,18 @@ function SlideForm({ slide, onChange, onSave, onCancel }: {
   onSave: () => void;
   onCancel: () => void;
 }) {
-  const set = (key: keyof Slide, val: string) => onChange({ ...slide, [key]: val });
-  const inputCls = "w-full bg-stone-800 border border-stone-700 text-white placeholder-stone-500 px-4 py-3 rounded-xl text-sm outline-none focus:border-amber-500 transition-colors";
   const labelCls = "block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2";
 
   return (
     <div className="space-y-5">
-      {/* Image */}
       <div>
-        <label className={labelCls}>Image</label>
-        <ImageUploader value={slide.image} onChange={(val) => set("image", val)} placeholder="https://images.unsplash.com/..." />
+        <label className={labelCls}>Image (full-size, HD)</label>
+        <ImageUploader value={slide.image} onChange={(val) => onChange({ ...slide, image: val })} placeholder="https://images.unsplash.com/..." preset={HD_PRESET} />
         {slide.image && (
           <div className="mt-3 relative h-36 rounded-xl overflow-hidden bg-stone-800">
             <img src={slide.image} alt="" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
-            <div className="absolute inset-0 bg-gradient-to-r from-stone-950/70 to-transparent" />
           </div>
         )}
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelCls}>Tag / Badge</label>
-          <input value={slide.tag} onChange={(e) => set("tag", e.target.value)} placeholder="New Collection 2025" className={inputCls} />
-        </div>
-        <div>
-          <label className={labelCls}>CTA Button Text</label>
-          <input value={slide.cta} onChange={(e) => set("cta", e.target.value)} placeholder="Shop Now" className={inputCls} />
-        </div>
-      </div>
-
-      <div>
-        <label className={labelCls}>Title (use \n for line break)</label>
-        <input value={slide.title} onChange={(e) => set("title", e.target.value)} placeholder="Persian Royal\nMasterpieces" className={inputCls} />
-      </div>
-
-      <div>
-        <label className={labelCls}>Subtitle</label>
-        <textarea value={slide.sub} onChange={(e) => set("sub", e.target.value)} rows={2} placeholder="Short description..." className={inputCls + " resize-none"} />
-      </div>
-
-      <div>
-        <label className={labelCls}>Link URL</label>
-        <input value={slide.href} onChange={(e) => set("href", e.target.value)} placeholder="/shop?category=Persian" className={inputCls} />
-      </div>
-
-      <div>
-        <label className={labelCls}>Accent Color</label>
-        <div className="flex flex-wrap gap-2 mt-1">
-          {accentOptions.map((a) => (
-            <button key={a} type="button" onClick={() => set("accent", a)} className={`h-8 w-24 rounded-xl bg-gradient-to-r ${a} text-white text-xs font-bold transition-all ${slide.accent === a ? "ring-2 ring-white scale-105" : "opacity-60 hover:opacity-100"}`}>
-              {slide.accent === a ? "✓" : ""}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="flex gap-3 pt-2">
@@ -538,35 +469,18 @@ function DiscoverSlideForm({ slides, onChange, onSave, onCancel }: {
   onSave: () => void;
   onCancel: () => void;
 }) {
-  const set = (key: keyof DiscoverSlide, val: string) => onChange({ ...slides, [key]: val });
-  const inputCls = "w-full bg-stone-800 border border-stone-700 text-white placeholder-stone-500 px-4 py-3 rounded-xl text-sm outline-none focus:border-amber-500 transition-colors";
   const labelCls = "block text-xs font-bold text-stone-400 uppercase tracking-widest mb-2";
 
   return (
     <div className="space-y-5">
       <div>
-        <label className={labelCls}>Image</label>
-        <ImageUploader value={slides.image} onChange={(val) => set("image", val)} placeholder="https://images.unsplash.com/..." />
+        <label className={labelCls}>Image (full-size, HD)</label>
+        <ImageUploader value={slides.image} onChange={(val) => onChange({ ...slides, image: val })} placeholder="https://images.unsplash.com/..." preset={HD_PRESET} />
         {slides.image && (
           <div className="mt-3 relative h-40 rounded-xl overflow-hidden bg-stone-800">
             <img src={slides.image} alt="" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
           </div>
         )}
-      </div>
-
-      <div>
-        <label className={labelCls}>Title</label>
-        <input value={slides.title} onChange={(e) => set("title", e.target.value)} placeholder="Persian Royal Masterpieces" className={inputCls} />
-      </div>
-
-      <div>
-        <label className={labelCls}>Subtitle</label>
-        <textarea value={slides.subtitle} onChange={(e) => set("subtitle", e.target.value)} rows={2} placeholder="Hand-knotted heritage rugs with centuries of story." className={inputCls + " resize-none"} />
-      </div>
-
-      <div>
-        <label className={labelCls}>Link URL</label>
-        <input value={slides.href} onChange={(e) => set("href", e.target.value)} placeholder="/shop?category=Persian" className={inputCls} />
       </div>
 
       <div className="flex gap-3 pt-2">

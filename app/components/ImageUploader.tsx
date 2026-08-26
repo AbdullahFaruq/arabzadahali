@@ -1,16 +1,25 @@
 "use client";
 import { useRef } from "react";
 
-const compressImage = (file: File): Promise<string> =>
+interface CompressOptions {
+  maxWidth: number;
+  maxHeight: number;
+  quality: number;
+  maxBytes: number;
+  fallbackQuality: number;
+}
+
+const THUMBNAIL_PRESET: CompressOptions = { maxWidth: 1200, maxHeight: 1200, quality: 0.62, maxBytes: 500_000, fallbackQuality: 0.4 };
+export const HD_PRESET: CompressOptions = { maxWidth: 1920, maxHeight: 1920, quality: 0.85, maxBytes: 3_000_000, fallbackQuality: 0.6 };
+
+const compressImage = (file: File, opts: CompressOptions): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const maxWidth = 1200;
-        const maxHeight = 1200;
-        const scale = Math.min(1, maxWidth / img.width, maxHeight / img.height);
+        const scale = Math.min(1, opts.maxWidth / img.width, opts.maxHeight / img.height);
         canvas.width = Math.max(1, Math.round(img.width * scale));
         canvas.height = Math.max(1, Math.round(img.height * scale));
 
@@ -24,8 +33,8 @@ const compressImage = (file: File): Promise<string> =>
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        const output = canvas.toDataURL("image/jpeg", 0.62);
-        resolve(output.length > 500000 ? canvas.toDataURL("image/jpeg", 0.4) : output);
+        const output = canvas.toDataURL("image/jpeg", opts.quality);
+        resolve(output.length > opts.maxBytes ? canvas.toDataURL("image/jpeg", opts.fallbackQuality) : output);
       };
       img.onerror = () => reject(new Error("Image could not be loaded"));
       img.src = String(reader.result);
@@ -38,10 +47,12 @@ export default function ImageUploader({
   value,
   onChange,
   placeholder = "https://...",
+  preset = THUMBNAIL_PRESET,
 }: {
   value: string;
   onChange: (val: string) => void;
   placeholder?: string;
+  preset?: CompressOptions;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const isLocalImage = value.startsWith("data:");
@@ -51,7 +62,7 @@ export default function ImageUploader({
     if (!file) return;
 
     try {
-      const compressed = await compressImage(file);
+      const compressed = await compressImage(file, preset);
       onChange(compressed);
     } catch {
       onChange("");

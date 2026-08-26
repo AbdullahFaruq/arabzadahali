@@ -1,8 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { CartItem, Product } from "../types";
-import { products as initialProducts } from "../data/products";
-import { Slide, initialSlides, DiscoverSlide, initialDiscoverSlides } from "../data/slides";
+import { Slide, DiscoverSlide } from "../data/slides";
 
 interface Toast { id: number; message: string; type: "success" | "error" | "info"; }
 
@@ -38,40 +37,34 @@ interface StoreCtx {
 
 const Ctx = createContext<StoreCtx | null>(null);
 
+const DEFAULT_BANNER = "🎁 Free shipping on orders over ₺500 · Use code CARPET20 for 20% off";
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [slides, setSlides] = useState<Slide[]>(initialSlides);
-  const [discoverSlides, setDiscoverSlides] = useState<DiscoverSlide[]>(initialDiscoverSlides);
-  const [banner, setBanner] = useState("🎁 Free shipping on orders over ₺500 · Use code CARPET20 for 20% off");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [discoverSlides, setDiscoverSlides] = useState<DiscoverSlide[]>([]);
+  const [banner, setBanner] = useState(DEFAULT_BANNER);
 
+  const showToast = useCallback((message: string, type: Toast["type"] = "success") => {
+    const id = Date.now();
+    setToasts((t) => [...t, { id, message, type }]);
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3000);
+  }, []);
+
+  // Cart & wishlist stay per-browser — a shopping cart doesn't need to sync
+  // across devices. Everything else (products, slides, banner) is shared
+  // site content and comes from the database below.
   useEffect(() => {
     try {
       const c = localStorage.getItem("cart");
       const w = localStorage.getItem("wishlist");
-      const p = localStorage.getItem("products");
-      const s = localStorage.getItem("slides");
-      const d = localStorage.getItem("discoverSlides");
-      const b = localStorage.getItem("banner");
-
       if (c && c.length < 500000) setCart(JSON.parse(c));
       else if (c) localStorage.removeItem("cart");
-
       if (w && w.length < 500000) setWishlist(JSON.parse(w));
       else if (w) localStorage.removeItem("wishlist");
-
-      if (p && p.length < 500000) setProducts(JSON.parse(p));
-      else if (p) localStorage.removeItem("products");
-
-      if (s && s.length < 500000) setSlides(JSON.parse(s));
-      else if (s) localStorage.removeItem("slides");
-
-      if (d && d.length < 500000) setDiscoverSlides(JSON.parse(d));
-      else if (d) localStorage.removeItem("discoverSlides");
-
-      if (b) setBanner(b);
     } catch {}
   }, []);
 
@@ -81,25 +74,34 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     } catch {
       console.warn(`localStorage quota exceeded for ${key}. Resetting cached data.`);
       localStorage.removeItem(key);
-      if (key === "products") setProducts(initialProducts);
-      if (key === "slides") setSlides(initialSlides);
-      if (key === "discoverSlides") setDiscoverSlides(initialDiscoverSlides);
-      if (key === "banner") setBanner("🎁 Free shipping on orders over ₺500 · Use code CARPET20 for 20% off");
+      if (key === "cart") setCart([]);
+      if (key === "wishlist") setWishlist([]);
     }
   }, []);
 
   useEffect(() => { safeSetItem("cart", JSON.stringify(cart)); }, [cart, safeSetItem]);
   useEffect(() => { safeSetItem("wishlist", JSON.stringify(wishlist)); }, [wishlist, safeSetItem]);
-  useEffect(() => { safeSetItem("products", JSON.stringify(products)); }, [products, safeSetItem]);
-  useEffect(() => { safeSetItem("slides", JSON.stringify(slides)); }, [slides, safeSetItem]);
-  useEffect(() => { safeSetItem("discoverSlides", JSON.stringify(discoverSlides)); }, [discoverSlides, safeSetItem]);
-  useEffect(() => { safeSetItem("banner", banner); }, [banner, safeSetItem]);
 
-  const showToast = useCallback((message: string, type: Toast["type"] = "success") => {
-    const id = Date.now();
-    setToasts((t) => [...t, { id, message, type }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3000);
-  }, []);
+  // Site content — fetched from the API (backed by MongoDB) so admin edits
+  // are visible to every visitor, not just the browser that made them.
+  useEffect(() => {
+    (async () => {
+      try {
+        const [p, s, d, settings] = await Promise.all([
+          fetch("/api/products").then((r) => r.json()),
+          fetch("/api/slides").then((r) => r.json()),
+          fetch("/api/discover-slides").then((r) => r.json()),
+          fetch("/api/settings").then((r) => r.json()),
+        ]);
+        setProducts(p);
+        setSlides(s);
+        setDiscoverSlides(d);
+        setBanner(settings.banner ?? DEFAULT_BANNER);
+      } catch {
+        showToast("Couldn't load store content — check your connection", "error");
+      }
+    })();
+  }, [showToast]);
 
   const addToCart = useCallback((p: Product, size = p.size) => {
     setCart((prev) => {
@@ -130,52 +132,130 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, [showToast]);
 
-  const addProduct = useCallback((p: Omit<Product, "id">) => {
-    setProducts((prev) => [...prev, { ...p, id: Date.now() }]);
-    showToast(`"${p.name}" added successfully`);
+  const addProduct = useCallback(async (p: Omit<Product, "id">) => {
+    try {
+      const res = await fetch("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
+      if (!res.ok) throw new Error();
+      const created: Product = await res.json();
+      setProducts((prev) => [...prev, created]);
+      showToast(`"${created.name}" added successfully`);
+    } catch {
+      showToast("Failed to add product", "error");
+    }
   }, [showToast]);
 
-  const updateProduct = useCallback((p: Product) => {
-    setProducts((prev) => prev.map((x) => x.id === p.id ? p : x));
-    showToast(`"${p.name}" updated`);
+  const updateProduct = useCallback(async (p: Product) => {
+    try {
+      const res = await fetch(`/api/products/${p.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) });
+      if (!res.ok) throw new Error();
+      const updated: Product = await res.json();
+      setProducts((prev) => prev.map((x) => x.id === updated.id ? updated : x));
+      showToast(`"${updated.name}" updated`);
+    } catch {
+      showToast("Failed to update product", "error");
+    }
   }, [showToast]);
 
-  const deleteProduct = useCallback((id: number) => {
-    setProducts((prev) => prev.filter((x) => x.id !== id));
-    showToast("Product deleted", "info");
+  const deleteProduct = useCallback(async (id: number) => {
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setProducts((prev) => prev.filter((x) => x.id !== id));
+      showToast("Product deleted", "info");
+    } catch {
+      showToast("Failed to delete product", "error");
+    }
   }, [showToast]);
 
-  const updateSlide = useCallback((s: Slide) => {
-    setSlides((prev) => prev.map((x) => x.id === s.id ? s : x));
-    showToast("Slide updated");
+  const updateSlide = useCallback(async (s: Slide) => {
+    try {
+      const res = await fetch(`/api/slides/${s.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(s) });
+      if (!res.ok) throw new Error();
+      const updated: Slide = await res.json();
+      setSlides((prev) => prev.map((x) => x.id === updated.id ? updated : x));
+      showToast("Slide updated");
+    } catch {
+      showToast("Failed to update slide", "error");
+    }
   }, [showToast]);
 
-  const addSlide = useCallback((s: Omit<Slide, "id">) => {
-    setSlides((prev) => [...prev, { ...s, id: Date.now() }]);
-    showToast("Slide added");
+  const addSlide = useCallback(async (s: Omit<Slide, "id">) => {
+    try {
+      const res = await fetch("/api/slides", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(s) });
+      if (!res.ok) throw new Error();
+      const created: Slide = await res.json();
+      setSlides((prev) => [...prev, created]);
+      showToast("Slide added");
+    } catch {
+      showToast("Failed to add slide", "error");
+    }
   }, [showToast]);
 
-  const deleteSlide = useCallback((id: number) => {
-    setSlides((prev) => prev.filter((x) => x.id !== id));
-    showToast("Slide deleted", "info");
+  const deleteSlide = useCallback(async (id: number) => {
+    try {
+      const res = await fetch(`/api/slides/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setSlides((prev) => prev.filter((x) => x.id !== id));
+      showToast("Slide deleted", "info");
+    } catch {
+      showToast("Failed to delete slide", "error");
+    }
   }, [showToast]);
 
-  const updateBanner = useCallback((text: string) => { setBanner(text); showToast("Banner updated"); }, [showToast]);
-  const reorderSlides = useCallback((s: Slide[]) => setSlides(s), []);
-
-  const addDiscoverSlide = useCallback((s: Omit<DiscoverSlide, "id">) => {
-    setDiscoverSlides((prev) => [...prev, { ...s, id: Date.now() }]);
-    showToast("Discovery slide added");
+  const updateBanner = useCallback(async (text: string) => {
+    try {
+      const res = await fetch("/api/settings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ banner: text }) });
+      if (!res.ok) throw new Error();
+      setBanner(text);
+      showToast("Banner updated");
+    } catch {
+      showToast("Failed to update banner", "error");
+    }
   }, [showToast]);
 
-  const updateDiscoverSlide = useCallback((s: DiscoverSlide) => {
-    setDiscoverSlides((prev) => prev.map((x) => x.id === s.id ? s : x));
-    showToast("Discovery slide updated");
+  const reorderSlides = useCallback(async (newOrder: Slide[]) => {
+    setSlides(newOrder);
+    try {
+      const res = await fetch("/api/slides/reorder", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids: newOrder.map((s) => s.id) }) });
+      if (!res.ok) throw new Error();
+    } catch {
+      showToast("Failed to save new slide order", "error");
+    }
   }, [showToast]);
 
-  const deleteDiscoverSlide = useCallback((id: number) => {
-    setDiscoverSlides((prev) => prev.filter((x) => x.id !== id));
-    showToast("Discovery slide removed", "info");
+  const addDiscoverSlide = useCallback(async (s: Omit<DiscoverSlide, "id">) => {
+    try {
+      const res = await fetch("/api/discover-slides", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(s) });
+      if (!res.ok) throw new Error();
+      const created: DiscoverSlide = await res.json();
+      setDiscoverSlides((prev) => [...prev, created]);
+      showToast("Discovery slide added");
+    } catch {
+      showToast("Failed to add discovery slide", "error");
+    }
+  }, [showToast]);
+
+  const updateDiscoverSlide = useCallback(async (s: DiscoverSlide) => {
+    try {
+      const res = await fetch(`/api/discover-slides/${s.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(s) });
+      if (!res.ok) throw new Error();
+      const updated: DiscoverSlide = await res.json();
+      setDiscoverSlides((prev) => prev.map((x) => x.id === updated.id ? updated : x));
+      showToast("Discovery slide updated");
+    } catch {
+      showToast("Failed to update discovery slide", "error");
+    }
+  }, [showToast]);
+
+  const deleteDiscoverSlide = useCallback(async (id: number) => {
+    try {
+      const res = await fetch(`/api/discover-slides/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setDiscoverSlides((prev) => prev.filter((x) => x.id !== id));
+      showToast("Discovery slide removed", "info");
+    } catch {
+      showToast("Failed to remove discovery slide", "error");
+    }
   }, [showToast]);
 
   const isWishlisted = useCallback((id: number) => wishlist.includes(id), [wishlist]);
