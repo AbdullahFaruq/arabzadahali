@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useStore } from "../context/StoreContext";
+import { whatsappChatUrl } from "../lib/whatsapp";
 
 const IBAN = "TR970020500009745808400002";
 const ACCOUNT_NAME = "FAZAL HAQ ARABZADA";
-const WHATSAPP_PHONE = "905523852376";
 
 export default function CheckoutPage() {
   const { cart, cartTotal } = useStore();
@@ -33,7 +33,7 @@ export default function CheckoutPage() {
       orderSummary ? `Items: ${orderSummary}.` : ""
     } Total: ${cartTotal.toLocaleString("tr-TR")}₺.`;
 
-    return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+    return whatsappChatUrl(message);
   }, [cart, cartTotal]);
 
   if (cart.length === 0) {

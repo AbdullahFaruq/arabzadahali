@@ -1,7 +1,6 @@
 import Link from "next/link";
+import { WHATSAPP_DISPLAY, whatsappChatUrl } from "../lib/whatsapp";
 
-const WHATSAPP_PHONE = "905523852376";
-const PHONE_DISPLAY = "0552 385 23 76";
 const EMAIL = "İstanbulrugs1@gmail.com";
 
 const contactCards = [
@@ -14,7 +13,7 @@ const contactCards = [
   {
     icon: "📞",
     title: "Call us",
-    value: PHONE_DISPLAY,
+    value: WHATSAPP_DISPLAY,
     accent: "text-emerald-400",
   },
   {
@@ -52,7 +51,7 @@ export default function ContactPage() {
 
               <div className="mt-8 flex flex-wrap gap-4">
                 <a
-                  href={`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent("Hello, I want to ask about your rugs.")}`}
+                  href={whatsappChatUrl("Hello, I want to ask about your rugs.")}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-white font-black px-7 py-3.5 rounded-2xl transition-all hover:shadow-lg hover:shadow-emerald-500/30"
