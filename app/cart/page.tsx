@@ -16,7 +16,7 @@ export default function CartPage() {
     if (promo.toUpperCase() === "CARPET20") setPromoApplied(true);
   };
 
-  if (cart.length === 0) return (
+  if (!Array.isArray(cart) || cart.length === 0) return (
     <div className="bg-stone-950 min-h-screen text-white flex items-center justify-center">
       <div className="text-center">
         <div className="text-7xl mb-6">🛒</div>
@@ -65,13 +65,13 @@ export default function CartPage() {
                         <span className="text-xs bg-stone-800 text-stone-400 px-2 py-0.5 rounded-lg">Boyut: {item.selectedSize}</span>
                       </div>
                     </div>
-                    <button onClick={() => removeFromCart(item.id)} className="text-stone-600 hover:text-red-400 transition-colors shrink-0 text-lg leading-none">×</button>
+                    <button onClick={() => removeFromCart(item.id, item.selectedSize)} className="text-stone-600 hover:text-red-400 transition-colors shrink-0 text-lg leading-none">×</button>
                   </div>
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center bg-stone-800 rounded-xl overflow-hidden">
-                      <button onClick={() => updateQty(item.id, item.quantity - 1)} className="w-9 h-9 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-colors">−</button>
+                      <button onClick={() => updateQty(item.id, item.quantity - 1, item.selectedSize)} className="w-9 h-9 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-colors">−</button>
                       <span className="w-10 text-center text-white text-sm font-bold">{item.quantity}</span>
-                      <button onClick={() => updateQty(item.id, item.quantity + 1)} className="w-9 h-9 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-colors">+</button>
+                      <button onClick={() => updateQty(item.id, item.quantity + 1, item.selectedSize)} className="w-9 h-9 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-colors">+</button>
                     </div>
                     <div className="text-right">
                       <p className="font-black text-white">{(item.price * item.quantity).toLocaleString("tr-TR")}₺</p>

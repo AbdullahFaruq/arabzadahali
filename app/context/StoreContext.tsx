@@ -15,8 +15,8 @@ interface StoreCtx {
   banner: string;
   updateBanner: (text: string) => void;
   addToCart: (p: Product, size?: string) => void;
-  removeFromCart: (id: number) => void;
-  updateQty: (id: number, qty: number) => void;
+  removeFromCart: (id: number, size?: string) => void;
+  updateQty: (id: number, qty: number, size?: string) => void;
   clearCart: () => void;
   toggleWishlist: (id: number) => void;
   isWishlisted: (id: number) => boolean;
@@ -38,6 +38,39 @@ interface StoreCtx {
 const Ctx = createContext<StoreCtx | null>(null);
 
 const DEFAULT_BANNER = "🎁 Free shipping on orders over ₺500 · Use code CARPET20 for 20% off";
+
+const MAX_QTY = 99;
+
+// Cart data comes back from localStorage, where it may have been written by an
+// older version of the site or left half-written. Anything that can't render as
+// a real line item is dropped here, so the badge count and the cart page can
+// never disagree about what's in the cart.
+export function sanitizeCart(raw: unknown): CartItem[] {
+  if (!Array.isArray(raw)) return [];
+
+  return raw.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const item = entry as Partial<CartItem>;
+
+    const id = Number(item.id);
+    const price = Number(item.price);
+    if (!Number.isFinite(id) || !Number.isFinite(price) || price < 0) return [];
+    if (typeof item.name !== "string" || item.name.trim() === "") return [];
+
+    const quantity = Math.floor(Number(item.quantity));
+    const size = typeof item.selectedSize === "string" && item.selectedSize
+      ? item.selectedSize
+      : typeof item.size === "string" ? item.size : "";
+
+    return [{
+      ...(item as CartItem),
+      id,
+      price,
+      quantity: Number.isFinite(quantity) ? Math.min(Math.max(quantity, 1), MAX_QTY) : 1,
+      selectedSize: size,
+    }];
+  });
+}
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -61,8 +94,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     try {
       const c = localStorage.getItem("cart");
       const w = localStorage.getItem("wishlist");
-      if (c && c.length < 500000) setCart(JSON.parse(c));
-      else if (c) localStorage.removeItem("cart");
+      if (c && c.length < 500000) {
+        const restored = sanitizeCart(JSON.parse(c));
+        setCart(restored);
+        // Drop the stored copy outright if none of it survived validation,
+        // so a corrupt cart doesn't keep coming back on every visit.
+        if (restored.length === 0) localStorage.removeItem("cart");
+      } else if (c) localStorage.removeItem("cart");
       if (w && w.length < 500000) setWishlist(JSON.parse(w));
       else if (w) localStorage.removeItem("wishlist");
     } catch {}
@@ -106,20 +144,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const addToCart = useCallback((p: Product, size = p.size) => {
     setCart((prev) => {
       const existing = prev.find((i) => i.id === p.id && i.selectedSize === size);
-      if (existing) return prev.map((i) => i.id === p.id && i.selectedSize === size ? { ...i, quantity: i.quantity + 1 } : i);
+      if (existing) return prev.map((i) => i.id === p.id && i.selectedSize === size ? { ...i, quantity: Math.min(i.quantity + 1, MAX_QTY) } : i);
       return [...prev, { ...p, quantity: 1, selectedSize: size }];
     });
     showToast(`${p.name} added to cart`);
   }, [showToast]);
 
-  const removeFromCart = useCallback((id: number) => {
-    setCart((prev) => prev.filter((i) => i.id !== id));
+  const removeFromCart = useCallback((id: number, size?: string) => {
+    setCart((prev) => prev.filter((i) => !(i.id === id && (size === undefined || i.selectedSize === size))));
     showToast("Item removed from cart", "info");
   }, [showToast]);
 
-  const updateQty = useCallback((id: number, qty: number) => {
-    if (qty < 1) return;
-    setCart((prev) => prev.map((i) => i.id === id ? { ...i, quantity: qty } : i));
+  const updateQty = useCallback((id: number, qty: number, size?: string) => {
+    if (qty < 1 || qty > MAX_QTY) return;
+    setCart((prev) => prev.map((i) =>
+      i.id === id && (size === undefined || i.selectedSize === size) ? { ...i, quantity: qty } : i
+    ));
   }, []);
 
   const clearCart = useCallback(() => { setCart([]); showToast("Cart cleared", "info"); }, [showToast]);
@@ -259,8 +299,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [showToast]);
 
   const isWishlisted = useCallback((id: number) => wishlist.includes(id), [wishlist]);
-  const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
-  const cartTotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  const cartCount = cart.reduce((s, i) => s + (Number(i.quantity) || 0), 0);
+  const cartTotal = cart.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.quantity) || 0), 0);
 
   return (
     <Ctx.Provider value={{ cart, wishlist, toasts, products, slides, discoverSlides, banner, updateBanner, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, isWishlisted, cartCount, cartTotal, showToast, addProduct, updateProduct, deleteProduct, updateSlide, addSlide, deleteSlide, reorderSlides, addDiscoverSlide, updateDiscoverSlide, deleteDiscoverSlide }}>

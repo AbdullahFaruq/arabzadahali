@@ -36,7 +36,7 @@ export default function CheckoutPage() {
     return whatsappChatUrl(message);
   }, [cart, cartTotal]);
 
-  if (cart.length === 0) {
+  if (!Array.isArray(cart) || cart.length === 0) {
     return (
       <div className="bg-stone-950 min-h-screen text-white flex items-center justify-center">
         <div className="text-center max-w-xl px-6">
